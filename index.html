@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vektor Terpadu - QR Code & Link Pendek</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease-out;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        }
+
+        .card-title {
+            font-size: 1.4em;
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .short-link {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 8px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            color: #667eea;
+            font-weight: bold;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: #f1f5ff;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .barcode-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+        }
+
+        .link-description {
+            color: #6b7280;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #9ca3af;
+            font-weight: bold;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-btn:hover {
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 15px 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            color: #374151;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            color: #10b981;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            color: #6b7280;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #111;
+        }
+
+        .modal h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .copy-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .copy-btn:active {
+            background: #4052b5;
+        }
+
+        .success-message {
+            color: #10b981;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: opacity 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            opacity: 0.8;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .badge-primary {
+            background: #dbeafe;
+            color: #667eea;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #10b981;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 30% auto;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🦟 Vektor Terpadu</h1>
+            <p>QR Code • Link Pendek • Barcode Tracking</p>
+        </header>
+
+        <div class="grid">
+            <!-- CARD 1: QR CODE FORM LAPORAN -->
+            <div class="card">
+                <div class="card-title">
+                    📋 QR Code Form Laporan
+                    <span class="badge badge-primary">Pelapor</span>
+                </div>
+                <p class="link-description">
+                    Scan QR Code ini untuk langsung ke halaman form laporan. Pelapor bisa lapor vektor tanpa login.
+                </p>
+                <div class="qr-container" id="qr-form"></div>
+                <div class="short-link" id="link-form">Loading...</div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="downloadQR('qr-form', 'qr-form-laporan.png')">📥 Download QR</button>
+                    <button class="btn btn-secondary" onclick="copyToClipboard('link-form')">📋 Copy Link</button>
+                    <button class="btn btn-success" onclick="shareWhatsApp('link-form')">💬 Share WA</button>
+                </div>
+            </div>
+
+            <!-- CARD 2: QR CODE CEK STATUS -->
+            <div class="card">
+                <div class="card-title">
+                    🔍 QR Code Cek Status
+                    <span class="badge badge-primary">Tracking</span>
+                </div>
+                <p class="link-description">
+                    Scan QR Code ini untuk cek status laporan menggunakan nomor laporan atau nomor HP.
+                </p>
+                <div class="qr-container" id="qr-status"></div>
+                <div class="short-link" id="link-status">Loading...</div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="downloadQR('qr-status', 'qr-status-laporan.png')">📥 Download QR</button>
+                    <button class="btn btn-secondary" onclick="copyToClipboard('link-status')">📋 Copy Link</button>
+                    <button class="btn btn-success" onclick="shareWhatsApp('link-status')">💬 Share WA</button>
+                </div>
+            </div>
+
+            <!-- CARD 3: QR CODE ADMIN DASHBOARD -->
+            <div class="card">
+                <div class="card-title">
+                    🔐 QR Code Admin Dashboard
+                    <span class="badge badge-success">Admin Only</span>
+                </div>
+                <p class="link-description">
+                    Scan QR Code ini untuk akses admin dashboard. Password: Admin@Vektor2026
+                </p>
+                <div class="qr-container" id="qr-admin"></div>
+                <div class="short-link" id="link-admin">Loading...</div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="downloadQR('qr-admin', 'qr-admin-dashboard.png')">📥 Download QR</button>
+                    <button class="btn btn-secondary" onclick="copyToClipboard('link-admin')">📋 Copy Link</button>
+                    <button class="btn btn-warning" onclick="showPassword()">🔑 Lihat Password</button>
+                </div>
+            </div>
+
+            <!-- CARD 4: BARCODE TRACKING LAPORAN -->
+            <div class="card">
+                <div class="card-title">
+                    📊 Barcode Tracking Laporan
+                </div>
+                <p class="link-description">
+                    Setiap laporan memiliki nomor unik. Scan barcode ini untuk tracking laporan spesifik.
+                </p>
+                <div style="margin: 20px 0;">
+                    <label style="display: block; margin-bottom: 10px; color: #374151; font-weight: bold;">
+                        Nomor Laporan:
+                    </label>
+                    <input type="text" id="barcode-input" placeholder="Contoh: VTR/RSPR/2026/06/0001" 
+                           style="width: 100%; padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px; margin-bottom: 10px;">
+                    <button class="btn btn-primary" onclick="generateBarcode()" style="width: 100%;">Generate Barcode</button>
+                </div>
+                <div class="barcode-container" id="barcode-output" style="display: none;">
+                    <svg id="barcode"></svg>
+                </div>
+                <div class="btn-group" id="barcode-buttons" style="display: none;">
+                    <button class="btn btn-primary" onclick="downloadBarcode()">📥 Download Barcode</button>
+                    <button class="btn btn-secondary" onclick="copyBarcodeNumber()">📋 Copy Nomor</button>
+                </div>
+            </div>
+
+            <!-- CARD 5: LINK PENDEK MANAGER -->
+            <div class="card">
+                <div class="card-title">
+                    🔗 Link Pendek Manager
+                </div>
+                <p class="link-description">
+                    Buat link pendek custom untuk berbagi laporan atau form dengan mudah.
+                </p>
+                <div style="margin: 20px 0;">
+                    <label style="display: block; margin-bottom: 10px; color: #374151; font-weight: bold;">
+                        Full URL tujuan:
+                    </label>
+                    <input type="text" id="custom-url" placeholder="https://domain-anda.com/..." 
+                           style="width: 100%; padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px; margin-bottom: 10px;">
+                    <label style="display: block; margin-bottom: 10px; color: #374151; font-weight: bold;">
+                        Custom Code (optional):
+                    </label>
+                    <input type="text" id="custom-code" placeholder="contoh: lapor-vektor" 
+                           style="width: 100%; padding: 10px; border: 2px solid #e5e7eb; border-radius: 8px; margin-bottom: 10px;">
+                    <button class="btn btn-primary" onclick="generateShortLink()" style="width: 100%;">Generate Link Pendek</button>
+                </div>
+                <div id="short-link-result" style="display: none; margin: 15px 0;">
+                    <div class="short-link" id="generated-short-link"></div>
+                    <div class="btn-group" style="margin-top: 10px;">
+                        <button class="btn btn-secondary" onclick="copyGeneratedLink()">📋 Copy</button>
+                        <button class="btn btn-success" onclick="shareGeneratedLink()">💬 Share WA</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARD 6: INFORMASI UMUM -->
+            <div class="card">
+                <div class="card-title">
+                    ℹ️ Informasi Akses
+                </div>
+                <p class="link-description">
+                    Sistem ini otomatis mendeteksi URL tempat aplikasi berjalan (Vercel Ready).
+                </p>
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('tab-live')">Live URL</button>
+                </div>
+
+                <div id="tab-live" class="tab-content active">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">🌍 URL Terdeteksi Otomatis</h3>
+                    <ul class="feature-list">
+                        <li><strong>Domain:</strong> <span id="info-domain">Loading...</span></li>
+                        <li><strong>Status:</strong> Siap Digunakan (Production)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL UNTUK PASSWORD ADMIN -->
+        <div id="passwordModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2>🔐 Admin Password</h2>
+                <p style="color: #6b7280; margin-bottom: 20px;">Password default untuk admin dashboard:</p>
+                <input type="text" class="copy-input" value="Admin@Vektor2026" readonly onclick="this.select()">
+                <button class="copy-btn" onclick="copyPassword()">📋 Copy Password</button>
+                <div class="success-message" id="password-copy-msg">✓ Password copied!</div>
+                <p style="color: #ef4444; margin-top: 20px; font-size: 0.9em;">
+                    ⚠️ <strong>Penting:</strong> Ganti password ini dari panel admin!
+                </p>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <h3>🦟 Vektor Terpadu</h3>
+            <p>Aplikasi Pelaporan Keluhan Vektor yang Mudah & Terpercaya</p>
+            <div class="footer-links">
+                <a href="#" onclick="window.open(window.location.origin, '_blank')">🏠 Buka Aplikasi</a>
+                <a href="#" onclick="downloadAllQR()">📥 Download Semua QR</a>
+                <a href="#" onclick="printGuide()">🖨️ Print Panduan</a>
+            </div>
+            <p style="margin-top: 30px; font-size: 0.9em; opacity: 0.8;">
+                © 2026 Vektor Terpadu. Dibuat untuk kesehatan masyarakat Indonesia.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Data URL aplikasi (Dinamis dari Vercel/Domain aktif)
+        let baseURL = window.location.origin;
+
+        // Generate QR Codes
+        function generateQRCode(elementId, text) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = '';
+            new QRCode(element, {
+                text: text,
+                width: 250,
+                height: 250,
+                colorDark: '#667eea',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        // Initialize QR Codes on page load secara otomatis menyesuaikan domain Vercel
+        window.onload = function() {
+            // Set dynamic text
+            document.getElementById('link-form').textContent = `${baseURL}/s/lapor`;
+            document.getElementById('link-status').textContent = `${baseURL}/s/status`;
+            document.getElementById('link-admin').textContent = `${baseURL}/s/admin`;
+            document.getElementById('info-domain').textContent = baseURL;
+
+            // Generate QR codes pointing to shortlinks
+            generateQRCode('qr-form', `${baseURL}/s/lapor`);
+            generateQRCode('qr-status', `${baseURL}/s/status`);
+            generateQRCode('qr-admin', `${baseURL}/s/admin`);
+        };
+
+        // Download QR Code
+        function downloadQR(elementId, filename) {
+            const element = document.getElementById(elementId);
+            const canvas = element.querySelector('canvas');
+            if (!canvas) {
+                alert('QR Code belum ter-generate');
+                return;
+            }
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = filename;
+            link.click();
+        }
+
+        // Copy to Clipboard
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            // Fallback copy mechanism untuk dukungan browser lama
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('✓ Link berhasil di-copy!');
+            } catch (err) {
+                console.error('Failed to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Share to WhatsApp
+        function shareWhatsApp(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            const message = `Lapor/Cek keluhan vektor di sini: ${text}`;
+            const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+
+        // Generate Barcode
+        function generateBarcode() {
+            const input = document.getElementById('barcode-input').value.trim();
+            if (!input) {
+                alert('Masukkan nomor laporan terlebih dahulu');
+                return;
+            }
+
+            const output = document.getElementById('barcode-output');
+            const buttons = document.getElementById('barcode-buttons');
+            
+            output.style.display = 'flex';
+            buttons.style.display = 'flex';
+
+            JsBarcode('#barcode', input, {
+                format: 'CODE128',
+                width: 2,
+                height: 100,
+                displayValue: true,
+                fontSize: 14,
+                margin: 10
+            });
+        }
+
+        // Download Barcode
+        function downloadBarcode() {
+            const svg = document.getElementById('barcode');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const svgString = new XMLSerializer().serializeToString(svg);
+            const img = new Image();
+            
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                const link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = `barcode-${document.getElementById('barcode-input').value.replace(/\\//g, '-')}.png`;
+                link.click();
+            };
+
+            img.src = 'data:image/svg+xml;base64,' + btoa(svgString);
+        }
+
+        // Copy Barcode Number
+        function copyBarcodeNumber() {
+            const number = document.getElementById('barcode-input').value;
+            const textArea = document.createElement("textarea");
+            textArea.value = number;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('✓ Nomor barcode berhasil di-copy!');
+            } catch (err) {
+                console.error('Failed to copy', err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        // Generate Short Link
+        function generateShortLink() {
+            const url = document.getElementById('custom-url').value.trim();
+            const code = document.getElementById('custom-code').value.trim();
+
+            if (!url) {
+                alert('Masukkan URL tujuan terlebih dahulu');
+                return;
+            }
+
+            const shortCode = code || Math.random().toString(36).substr(2, 6);
+            const shortLink = `${baseURL}/s/${shortCode}`;
+
+            document.getElementById('generated-short-link').textContent = shortLink;
+            document.getElementById('short-link-result').style.display = 'block';
+        }
+
+        // Copy Generated Link
+        function copyGeneratedLink() {
+            const text = document.getElementById('generated-short-link').textContent;
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            alert('✓ Link pendek berhasil di-copy!');
+        }
+
+        // Share Generated Link
+        function shareGeneratedLink() {
+            const text = document.getElementById('generated-short-link').textContent;
+            const message = `Akses link Vektor Terpadu: ${text}`;
+            const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(url, '_blank');
+        }
+
+        // Switch Tabs
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Show Password Modal
+        function showPassword() {
+            document.getElementById('passwordModal').style.display = 'block';
+        }
+
+        // Close Modal
+        function closeModal() {
+            document.getElementById('passwordModal').style.display = 'none';
+        }
+
+        // Copy Password
+        function copyPassword() {
+            const password = 'Admin@Vektor2026';
+            const textArea = document.createElement("textarea");
+            textArea.value = password;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            document.getElementById('password-copy-msg').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('password-copy-msg').style.display = 'none';
+            }, 2000);
+        }
+
+        // Download All QR Codes
+        function downloadAllQR() {
+            downloadQR('qr-form', 'qr-form-laporan.png');
+            setTimeout(() => downloadQR('qr-status', 'qr-status-laporan.png'), 500);
+            setTimeout(() => downloadQR('qr-admin', 'qr-admin-dashboard.png'), 1000);
+        }
+
+        // Print Guide
+        function printGuide() {
+            window.print();
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('passwordModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+# Konfigurasi Redirect untuk Link Pendek (Status 302 = Temporary Redirect)
+[[redirects]]
+  from = "/s/lapor"
+  to = "/form"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/s/status"
+  to = "/status"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/s/admin"
+  to = "/admin"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/s/home"
+  to = "/"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/s/track"
+  to = "/status"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/s/dashboard"
+  to = "/admin"
+  status = 302
+  force = true
+
+# Rewrite untuk memastikan aplikasi tidak error saat di-refresh (Status 200)
+[[redirects]]
+  from = "/qr-manager"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
