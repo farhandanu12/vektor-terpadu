@@ -1,4 +1,5 @@
-# Konfigurasi Redirect untuk Link Pendek (Status 302 = Temporary Redirect)
+# Konfigurasi Redirect untuk Link Pendek
+
 [[redirects]]
   from = "/s/lapor"
   to = "https://vektor-rspr.netlify.app/"
@@ -13,7 +14,7 @@
 
 [[redirects]]
   from = "/s/admin"
-  to = "/admin"
+  to = "/?v=admin"
   status = 302
   force = true
 
@@ -29,7 +30,7 @@
   status = 302
   force = true
 
-# Rewrite untuk memastikan aplikasi tidak error saat di-refresh (Status 200)
+# Rewrite supaya aplikasi tidak error saat refresh
 [[redirects]]
   from = "/*"
   to = "/index.html"
